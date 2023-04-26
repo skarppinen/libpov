@@ -108,7 +108,6 @@ void fill_increments(double *restrict increments,
                      const unsigned int status);
 
 double find_increment(unsigned int *restrict incr_index_ptr, 
-                      const unsigned int status, 
                       const double *restrict increments, 
                       const unsigned int nT); 
 

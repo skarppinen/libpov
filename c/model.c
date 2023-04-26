@@ -91,7 +91,7 @@ void build_problem(RandomSweepStorage *restrict rs,
                 2.0, vp->muplus, vp->nS,
                 1.0, rs->Qb, vp->nS);
     u_to_l_tri(rs->Qb, vp->nS); // Fill lower triangle with what is on upper triangle.
-};
+}
 
 static void normal_posterior_mean_var(double * mupost, double * sigma2post,
                                       double y, double muprior, double sigma2prior,

@@ -29,7 +29,7 @@ RandomSweepStorage * RandomSweepStorage_alloc(const unsigned int nS,
     rs->status_lu = calloc(nS, sizeof(unsigned int));     
     rs->increments = calloc(nT + 1, sizeof(double));
     return rs;
-};
+}
 
 void RandomSweepStorage_free(RandomSweepStorage * rs) {
     free(rs->X);
@@ -169,7 +169,6 @@ void update_QbX(double *restrict QbX,
 }
 
 double find_increment(unsigned int * incr_index_ptr,
-                      __attribute__((unused)) const unsigned int status,
                       const double * increments,
                       const unsigned int nT) {
     // NOTE: For now, smallest negative descent only.
@@ -315,7 +314,7 @@ int random_sweep(double * out,
                 stand = rs->order[j];
                 status = rs->status_lu[stand];
                 fill_increments(rs->increments, rs->Qb, rs->QbX, rs->C, nS, nT, stand, status); 
-                incr = find_increment(&incr_index, status, rs->increments, nT); 
+                incr = find_increment(&incr_index, rs->increments, nT); 
                 newstatus = incr_index;
                 if (newstatus != status) {
                     changed = 1U;
