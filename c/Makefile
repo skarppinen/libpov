@@ -15,7 +15,7 @@ model.o: model.c
 	$(CC) $(FLAGS) -fpic -c model.c
 
 $(LIBNAME): random-sweep.o model.o
-	$(CC) $(FLAGS) -shared -o $(LIBNAME) random-sweep.o model.o 
+	$(CC) $(FLAGS) -shared -o $(LIBNAME) random-sweep.o model.o $(GSL_FLAGS) $(CBLAS_FLAGS)
 
 clean:
 	rm *.o
