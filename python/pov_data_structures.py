@@ -23,7 +23,7 @@ class StandData:
     A class representing information regarding stands.
     `muprior[s, a]` contains the prior mean volume of stand `s` and assortment `a`.
     `varprior[s, a]` contains the prior volume variance of stand `s` and assortment `a`.
-    `varmeas[s, a, i]` contains the measurement variance of stand `s` and assortment `a` using \
+    `varmeas[i, s, a]` contains the measurement variance of stand `s` and assortment `a` using \
             inventory method `i`.
     `demands[t, a]` contains the demand of assortment `a` at time `t`. 
     """
@@ -162,7 +162,7 @@ class PoVStorage:
         The input arguments are as follows:
         `stda`: A `StandData` object that contains the relevant stand data. 
         See `help(pov_data_structures.StandData)` for more details.
-        `nsamples`: The number of Monte Carlo samples used each subsequent call to the method `PoV`.
+        `nsamples`: The number of Monte Carlo samples used in each subsequent call to the method `PoV`.
         `seed`: A random seed used to initialise `nsamples` random seeds used to draw each Monte Carlo sample internally. 
         """
         self.stdaC = StandDataC(stda)
