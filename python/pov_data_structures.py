@@ -2,6 +2,14 @@ import ctypes
 from ctypes import c_uint, c_double, c_ulong, POINTER, byref
 import numpy as np
 import random
+import os
+import platform
+
+if platform.system() == "Windows":
+    LIBPOV_LIBNAME = "libpov.dll"
+else:
+    LIBPOV_LIBNAME = "libpov.so"
+
 
 def as_flat_double_arr(x: np.ndarray):
     """
@@ -147,13 +155,11 @@ class PoVStorage:
                                  POINTER(SeedVectorC), c_uint, c_uint]
         self.lib.PoV.restype = c_double
 
-    def __init__(self, libname: str, stda: StandData, nsamples: int, seed: int): 
+    def __init__(self, stda: StandData, nsamples: int, seed: int): 
         """
         Initialise a `PoVStorage` object. 
 
         The input arguments are as follows:
-        `libname`: The name of the shared library containing the C function `PoV`. 
-        Note that the shared library must be discoverable by the operating system or an error will be thrown. 
         `stda`: A `StandData` object that contains the relevant stand data. 
         See `help(pov_data_structures.StandData)` for more details.
         `nsamples`: The number of Monte Carlo samples used each subsequent call to the method `PoV`.
@@ -163,10 +169,23 @@ class PoVStorage:
         self.vpC = VolumePosteriorC(nS = stda.nS, nA = stda.nA)
         self.rsC = RandomSweepStorageC(stda)
         self.svC = SeedVectorC(n = nsamples, seed = seed)
-        self.lib = ctypes.CDLL(libname)
+        
+        # The following sets up the C shared library. On Windows, a special environment variable is used to find DLLs.
+        # On Linux, the .so shared library is assumed to be discoverable by the OS.
+        if platform.system() == "Windows":
+            # The following is needed for Windows to find necessary DLLs.
+            # The environment variable 'LIBPOV_DLLS' should be defined.
+            try:
+                dllstring = os.environ['LIBPOV_DLLS'].split(';')
+            except KeyError:
+                print("No environment variable LIBPOV_DLLS set. Please populate this environment variable with paths to folders containing libpov.dll, gsl.dll and gslcblas.dll separated by ';'.")
+                exit(1)
+            for path in dllstring:
+                os.add_dll_directory(path)
+        self.lib = ctypes.CDLL(LIBPOV_LIBNAME)
         self._setup_PoV()
         
-    def PoV(self, xI, ninits: int, maxsweeps:int = 9999):
+    def PoV(self, xI, ninits: int, maxsweeps: int = 9999):
         """
         Main method. Calls the C code for PoV with the following arguments:
 
