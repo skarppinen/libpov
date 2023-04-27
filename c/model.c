@@ -1,3 +1,9 @@
+#ifdef _WIN32
+    // This seems to be required in Windows so that PoV is actually put to DLL.
+    #define EXPORT_FUNCTION __declspec(dllexport)
+#else
+    #define EXPORT_FUNCTION
+#endif
 #include <math.h>
 #include <assert.h>
 #include "random-sweep.h"
@@ -143,7 +149,7 @@ void random_posterior(VolumePosterior *restrict vp,
     compute_posterior(vp, xI, stda);
 }
 
-double PoV(const unsigned int *restrict xI,
+EXPORT_FUNCTION double PoV(const unsigned int *restrict xI,
            RandomSweepStorage *restrict rs,
            VolumePosterior *restrict vp,
            const StandData *restrict stda, 

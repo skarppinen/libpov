@@ -1,3 +1,8 @@
+#ifdef _WIN32
+    // This seems to be required in Windows to avoid linking errors with GSL.
+    #define WIN32
+    #define GSL_DLL
+#endif
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h> // This includes cblas.
 
