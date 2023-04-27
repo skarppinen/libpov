@@ -12,9 +12,9 @@ import numpy as np # Used for constructing inventory decision vector.
 # The first argument selects the XLSX file to read from, and the second argument 
 # should be set to the index of the data (3 is the latest, 2 is one before that).
 # Index 1 also exists but is not implemented currently.
-# The index is used in 
+# The index is used in the function to select right columns to gather data from. 
 data_index = 3
-path_to_data = f"test-data-{data_index}.xlsx"
+path_to_data = f"test_dataset_{data_index}.xlsx"
 stda = get_stand_data(path_to_data, data_index)
 
 # Build an object containing all relevant objects and data needed to call the PoV function.
