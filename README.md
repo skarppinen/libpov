@@ -3,7 +3,7 @@
 This repository is a work in progress related to the project "Value of information in harvest planning of Nordic forests".
 The repository contains C code that can be compiled to a C library that exposes a function for computing the posterior value of a certain type of forest inventory decision. Example code for calling the function in Python 3 is also included.
 
-## Installing the library under 64bit Windows 10/11:
+## Installing the library under 64bit Windows 10/11
 
 Start by cloning or downloading this repository, and placing it somewhere on the file system.
 Next, the following dependencies need to be installed. 
