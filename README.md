@@ -37,7 +37,7 @@ See below for instructions.
 
 Once the previous steps are done, "libpov.dll" (the library) may be compiled. To do this, follow these steps:
 
-1. Find out the folder where GSL was installed. On my machine, this folder is "C:\Program Files\GSL". 
+1. Find out the folder where GSL was installed. By default, this should be "C:\Program Files\GSL". 
 The folder where GSL was installed will be referred to as `GSL_FOLDER` below.
 
 2. Create the environment variables `INCLUDE` and `LIB` and set them to point to the paths of GSL header files and library.
