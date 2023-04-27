@@ -25,7 +25,7 @@ See below for instructions.
 
 2. Download the archive containing the source code of the GSL library from [this link](https://github.com/ampl/gsl/archive/refs/heads/master.zip), then:
     - Extract the archive anywhere on the filesystem. 
-    - Launch "x64 Native Tools Command Prompt for VS 2022" (installed with the build tools) *as administrator* (this is important) and navigate to the extracted folderusing the "cd" command.
+    - Launch "x64 Native Tools Command Prompt for VS 2022" (installed with the build tools) *as administrator* (this is important) and navigate to the extracted folder using the `cd` command.
     - In the extracted folder:
         1. Create a new folder named "build" using `mkdir build`.  
         2. Move to the "build" folder using `cd build`. 
