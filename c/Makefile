@@ -3,7 +3,7 @@ GSL_FLAGS:=-lgsl
 CBLAS_FLAGS:=-lopenblas
 LIBNAME:=libpov.so
 OPTLEVEL:=-O2
-FLAGS:=-Wall -Wextra -Wpedantic $(OPTLEVEL)
+FLAGS:=-Wall -Wextra -Wpedantic -std=c99 $(OPTLEVEL)
 .PHONY=clean 
 
 all: random-sweep.o model.o $(LIBNAME) 
