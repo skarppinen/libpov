@@ -1,5 +1,5 @@
 import ctypes
-from ctypes import c_uint, c_double, c_ulong, POINTER, byref
+from ctypes import c_int, c_uint, c_double, c_ulong, POINTER, byref
 import numpy as np
 import random
 import os
@@ -93,9 +93,7 @@ class RandomSweepStorageC(ctypes.Structure):
     Class used to pass a `RandomSweepStorage` object to the C code. This class mirrors
     the C struct `RandomSweepStorage` and is used in the random sweep algorithm.
     """
-    _fields_ = [("nS", c_uint),
-                ("nT", c_uint),
-                ("X", POINTER(c_double)),
+    _fields_ = [("X", POINTER(c_double)),
                 ("Xopt", POINTER(c_double)),
                 ("C", POINTER(c_double)),
                 ("Qb", POINTER(c_double)),
@@ -104,9 +102,14 @@ class RandomSweepStorageC(ctypes.Structure):
                 ("order", POINTER(c_uint)),
                 ("status_lu", POINTER(c_uint)),
                 ("increments", POINTER(c_double)),
-                ("r", c_double)
+                ("r", c_double),
+                ("nS", c_uint),
+                ("nT", c_uint),
+                ("strategy", c_int)
                 ]
-    def __init__(self, stda: StandData):
+    def __init__(self, stda: StandData, strategy: int):
+        assert strategy in (0, 1), "strategy must be 0 (smallest negative) or 1 (greatest_negative)"
+        self.strategy = c_int(strategy)
         self.nS = c_uint(stda.nS)
         self.nT = c_uint(stda.nT)
         nelems = stda.nS * stda.nT
@@ -155,19 +158,20 @@ class PoVStorage:
                                  POINTER(SeedVectorC), c_uint, c_uint]
         self.lib.PoV.restype = c_double
 
-    def __init__(self, stda: StandData, nsamples: int, seed: int): 
+    def __init__(self, stda: StandData, strategy: int, nsamples: int, seed: int): 
         """
         Initialise a `PoVStorage` object. 
 
         The input arguments are as follows:
         `stda`: A `StandData` object that contains the relevant stand data. 
         See `help(pov_data_structures.StandData)` for more details.
+        `strategy`: Sweeping strategy to use in random sweep algorithm. Either 0 (smallest negative) or 1 (greatest negative).
         `nsamples`: The number of Monte Carlo samples used in each subsequent call to the method `PoV`.
         `seed`: A random seed used to initialise `nsamples` random seeds used to draw each Monte Carlo sample internally. 
         """
         self.stdaC = StandDataC(stda)
         self.vpC = VolumePosteriorC(nS = stda.nS, nA = stda.nA)
-        self.rsC = RandomSweepStorageC(stda)
+        self.rsC = RandomSweepStorageC(stda, strategy = strategy)
         self.svC = SeedVectorC(n = nsamples, seed = seed)
         
         # The following sets up the C shared library. On Windows, a special environment variable is used to find DLLs.

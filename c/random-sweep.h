@@ -15,15 +15,14 @@ enum {
     RANDOM_SWEEP_NOT_CONVERGED = 1
 };
 
-enum {
+typedef enum {
     SWEEP_STRATEGY_SMALLEST_NEGATIVE = 0, 
-    SWEEP_STRATEGY_RANDOM_NEGATIVE = 1,
-    SWEEP_STRATEGY_GREATEST_NEGATIVE = 2
-};
+    SWEEP_STRATEGY_GREATEST_NEGATIVE = 1
+} SweepStrategy;
+
+typedef double (*IncrementFinder)(int *, const double *, const unsigned int);
 
 typedef struct {
-    unsigned int nS; // Number of stands.
-    unsigned int nT; // Number of time points.
     double * X; // `nS` x `nT` decision matrix storing current solution.
     double * Xopt; // `nS` x `nT` decision matrix storing best found solution.
     double * C; // `nS` x `nT` matrix containing `c_t` on each column (see below).
@@ -35,11 +34,15 @@ typedef struct {
     // Temporary for storing increments corresponding to changes to stand harvesting, length `nT + 1`. 
     double * increments; 
     double r; // Constant in objective function.
+    unsigned int nS; // Number of stands.
+    unsigned int nT; // Number of time points.
+    SweepStrategy strategy;
 } RandomSweepStorage;
 
 RandomSweepStorage * RandomSweepStorage_alloc(const unsigned int nS,
                                               const unsigned int nT,
-                                              const double r); 
+                                              const double r,
+                                              const SweepStrategy strategy); 
 
 
 void RandomSweepStorage_free(RandomSweepStorage * rs);
@@ -113,6 +116,8 @@ void fill_increments(double *restrict increments,
                      const unsigned int status);
 
 double find_increment(unsigned int *restrict incr_index_ptr, 
+                      const IncrementFinder incf,
+                      const unsigned int status,
                       const double *restrict increments, 
                       const unsigned int nT); 
 

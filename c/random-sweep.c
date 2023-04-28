@@ -12,7 +12,8 @@ unsigned int approx_eq(double x, double y) {
 
 RandomSweepStorage * RandomSweepStorage_alloc(const unsigned int nS,
                                               const unsigned int nT,
-                                              const double r) {
+                                              const double r,
+                                              const SweepStrategy strategy) {
     RandomSweepStorage * rs = malloc(sizeof(RandomSweepStorage)); 
     rs->nS = nS;
     rs->nT = nT;
@@ -28,6 +29,7 @@ RandomSweepStorage * RandomSweepStorage_alloc(const unsigned int nS,
         rs->order[i] = i;
     rs->status_lu = calloc(nS, sizeof(unsigned int));     
     rs->increments = calloc(nT + 1, sizeof(double));
+    rs->strategy = strategy;
     return rs;
 }
 
@@ -168,18 +170,45 @@ void update_QbX(double *restrict QbX,
     return;
 }
 
-double find_increment(unsigned int * incr_index_ptr,
-                      const double * increments,
-                      const unsigned int nT) {
-    // NOTE: For now, smallest negative descent only.
+
+double smallest_negative(int * iptr, const double * x, const unsigned int n) {
     double minimum = INFINITY;
-    for (unsigned int i = 0; i < nT + 1; i++) {
-        if (increments[i] < minimum) {
-            *incr_index_ptr = i;
-            minimum = increments[i];
+    for (unsigned int i = 0; i < n; i++) {
+        if (x[i] < minimum) {
+            *iptr = (int) i;
+            minimum = x[i];
         }
     }
     return minimum;
+}
+
+double greatest_negative(int * iptr, const double * x, const unsigned int n) {
+    double greatest = -INFINITY;
+    *iptr = -1;
+    for (unsigned int i = 0; i < n; i++) {
+        if (x[i] < 0.0 && x[i] > greatest) {
+            greatest = x[i];
+            *iptr = (int) i;
+        }
+    }
+    return greatest; 
+}
+
+double find_increment(unsigned int * incr_index_ptr,
+                      const IncrementFinder incf,
+                      const unsigned int status,
+                      const double * increments,
+                      const unsigned int nT) {
+    int i = 0;
+    int * iptr = &i;
+    double result = incf(iptr, increments, nT + 1); 
+    if (*iptr < 0) {
+        result = 0.0;    
+        *incr_index_ptr = status;
+        return result;
+    }
+    *incr_index_ptr = (unsigned int) *iptr; 
+    return result;
 }
 
 unsigned long int rand_zero_upto_n(const unsigned int n, gsl_rng * rng) {
@@ -257,21 +286,10 @@ int random_sweep_w_seed(double * out,
     return res;
 }
 
-gsl_rng * alloc_rng(const unsigned long int seed) {
-    gsl_rng * rng = gsl_rng_alloc(gsl_rng_mt19937);
-    gsl_rng_set(rng, seed);
-    return rng;
-}
-
-int random_sweep_w_rng(double *restrict out, 
-                       RandomSweepStorage *restrict rs,
-                       const unsigned int max_sweeps,
-                       const unsigned int inits,
-                       void *restrict rngptr) {
-    gsl_rng * rng = (gsl_rng *) rngptr;
-    int res = random_sweep(out, rs, max_sweeps, inits, rng); 
-    return res;
-}
+const IncrementFinder INCREMENT_FINDERS[2] = {
+    [SWEEP_STRATEGY_SMALLEST_NEGATIVE] = &smallest_negative,
+    [SWEEP_STRATEGY_GREATEST_NEGATIVE] = &greatest_negative
+};
 
 int random_sweep(double * out, 
                  RandomSweepStorage * rs, 
@@ -281,7 +299,7 @@ int random_sweep(double * out,
 
     assert(inits > 0U);
     assert(max_sweeps > 0U);
-
+    const IncrementFinder incf = INCREMENT_FINDERS[rs->strategy];
     const unsigned int nS = rs->nS;
     const unsigned int nT = rs->nT;
     const unsigned int N = nS * nT;
@@ -314,7 +332,7 @@ int random_sweep(double * out,
                 stand = rs->order[j];
                 status = rs->status_lu[stand];
                 fill_increments(rs->increments, rs->Qb, rs->QbX, rs->C, nS, nT, stand, status); 
-                incr = find_increment(&incr_index, rs->increments, nT); 
+                incr = find_increment(&incr_index, incf, status, rs->increments, nT); 
                 newstatus = incr_index;
                 if (newstatus != status) {
                     changed = 1U;

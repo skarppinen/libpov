@@ -22,11 +22,14 @@ stda = get_stand_data(path_to_data, data_index)
 # This requires that relevant shared libraries, most notably, libpov.so or libpov.dll can be found by the OS.
 # An error is thrown otherwise.
 # `stda` is the stand data object constructed above,
+# `strategy` sets the descent strategy used in the random sweep algorithm. 0 = smallest negative, 1 = greatest negative,
+# i.e how greedily should objective function be minimised.
 # `nsamples` sets the number of Monte Carlo samples used in computing PoV (below), and
 # `seed` sets a global random seed that is used to draw a random seed for each of the
 # Monte Carlo samples drawn in the PoV computation.
 nsamples = 30
-povst = PoVStorage(stda = stda, nsamples = nsamples, seed = 1)
+strategy = 0
+povst = PoVStorage(stda = stda, strategy = strategy, nsamples = nsamples, seed = 1)
 
 # The call to the C function `PoV` is implemented as a class method of the `PoVStorage` object.
 # The argument `ninits` specifies the number of random initialisations in the random sweeping algorithm

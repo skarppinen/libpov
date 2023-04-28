@@ -139,8 +139,6 @@ void compute_posterior(VolumePosterior *restrict vp,
     }
 }
 
-
-
 void random_posterior(VolumePosterior *restrict vp,
                       const unsigned int *restrict xI,
                       const StandData *restrict stda,
